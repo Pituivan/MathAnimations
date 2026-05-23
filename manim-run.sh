@@ -3,5 +3,5 @@
 FILE="$1"
 SCENE="$(basename "$FILE" .py)"
 
-rm -r media/
+rm -rf media/
 python -m manim -pql "$FILE" "$SCENE"
