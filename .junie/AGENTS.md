@@ -15,13 +15,12 @@ Since this is an animation project, "testing" primarily involves rendering scene
 
 Given that that's fundamentally a visual task, a human should be the one performing validation, so the AI should prompt the user to review and confirm whether the results are correct instead of manually testing by itself, unless stated otherwise by the user.
 
-## Additional Development Information
-
 ### Code Style and Patterns
 - **Favor Factory Methods**: The project often uses internal factory methods for consistent styling of labels and TeX elements (e.g., `_label_factory`, `_math_tex_factory` in `TrigonometricRadios.py`). This way, we avoid repeating initialization code over and over again.
 - **Color Palettes**: By default, stick to Manim's built-in color constants (e.g., `YELLOW_E`, `GREEN_E`). However, other colors gotten by specific hex codes may be used if requested by the user.
+- Avoid redundant parameter assignments (e.g., `color=WHITE` or `run_time=1` when these are the default values). The only exception to this is the time in waiting commands: use`self.wait(1)`, not `self.wait()`.
 
-### Scene Organization
+## Scene Organization
 All scenes must be broken into logical chunks of code within the construct method, and that will be carried out by using header comments, as follows:
 ```text
 # --- Header 1 (high-level section)
