@@ -9,11 +9,6 @@ This project uses [Manim Community](https://www.manim.community/) to create math
 - **Manim version**: `v0.20.1` (Community Edition).
 - **Dependencies**: Manim requires system-level dependencies like `ffmpeg`, `texlive` (for LaTeX), and `sox`.
 
-### Helper Scripts
-- `manim-run.sh`: A shell script to run a scene.
-  - *Note*: Script name (ignoring `.py` suffix) and scene name must match.
-  - *Note 2*: Ensure it uses the virtual environment's Python (`.venv/bin/python`) or that the virtual environment is activated.
-
 ## Testing
 
 Since this is an animation project, "testing" primarily involves rendering scenes to verify visual correctness.
