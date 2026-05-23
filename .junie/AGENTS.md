@@ -13,7 +13,7 @@ This project uses [Manim Community](https://www.manim.community/) to create math
 
 Since this is an animation project, "testing" primarily involves rendering scenes to verify visual correctness.
 
-Given that that's fundamentally a visual task, validation should be performed by a human, so the AI should prompt the user to review and confirm whether the results are correct instead of manually testing by itself, unless stated otherwise by the user.
+Given that that's fundamentally a visual task, a human should be the one performing validation, so the AI should prompt the user to review and confirm whether the results are correct instead of manually testing by itself, unless stated otherwise by the user.
 
 ## Additional Development Information
 
@@ -22,10 +22,9 @@ Given that that's fundamentally a visual task, validation should be performed by
 - **Color Palettes**: By default, stick to Manim's built-in color constants (e.g., `YELLOW_E`, `GREEN_E`). However, other colors gotten by specific hex codes may be used if requested by the user.
 
 ### Scene Organization
-All scenes must be broken into logical chunks of code within the construct method, which should be organized as follows:
+All scenes must be broken into logical chunks of code within the construct method, and that will be carried out by using header comments, as follows:
 ```text
-# --- Logical Section (high-level domain / feature area)
-# -- Module (cohesive sub-area within the section)
-# - Submodule (specific component or responsibility within the module)
+# --- Header 1 (high-level section)
+# -- Header 2 (sub-section)
 # Inline comments (short explanations for the next line or a small block)
 ```
