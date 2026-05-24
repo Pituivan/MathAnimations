@@ -48,13 +48,16 @@ class TrigonometricRadios(MovingCameraScene):
 
         right_triangle = Group(hypotenuse, leg_x, leg_y, handle)
 
-        angle = always_redraw(lambda:
-            EMPTY_MOBJECT if theta.get_value() % TAU == 0
+        def draw_angle(normalize=False):
+          value = theta.get_value()
+          if normalize: value %= TAU
+          return EMPTY_MOBJECT if value % TAU == 0 \
             else Arc(
-                angle=theta.get_value(),
+                angle=value,
                 radius=.4
             )
-        )
+
+        angle = always_redraw(draw_angle)
 
         # --- Unit Circle Presentation
 
@@ -88,7 +91,7 @@ class TrigonometricRadios(MovingCameraScene):
         theta_label.move_to(.7 * RIGHT + .35 * UP)
         self.play(SpinInFromNothing(theta_label))
 
-        def make_theta_param_tex(normalize_theta = False) -> MathTex:
+        def make_theta_param_tex(normalize_theta=False) -> MathTex:
             value = round(np.rad2deg(theta.get_value()), 1)
             if normalize_theta: value %= 360
             result = TrigonometricRadios._math_tex_factory(
@@ -335,7 +338,7 @@ class TrigonometricRadios(MovingCameraScene):
         self.add(tan_formula[6], tan_formula[8])
         self.wait(.5)
 
-        # --- Dynamic demonstration
+        # --- Dynamic Demonstration
 
         # Triangle sides labels will fade out, while formulas will be repositioned so they're
         # repositioned to the left, thus the tangent line doesn't draw over them.
@@ -427,6 +430,10 @@ class TrigonometricRadios(MovingCameraScene):
             Create(tan_line), Create(hyp_extension)
         )
         self.wait(1)
+
+        self.remove(angle)
+        angle = always_redraw(lambda: draw_angle(normalize=True))
+        self.add(angle)
 
         # Move theta and see it update
         right_triangle.resume_updating()
