@@ -4,7 +4,7 @@ FILE="$1"
 SCENE="$(basename "$FILE" .py)"
 
 QUALITY="0"
-FPS="15"
+FPS="60"
 
 shift
 while [[ $# -gt 0 ]]; do
