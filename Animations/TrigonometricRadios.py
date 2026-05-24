@@ -13,9 +13,6 @@ MOROCCAN_BLUE = ManimColor("#27ADF5")
 class TrigonometricRadios(MovingCameraScene):
     def construct(self):
 
-        # For testing purposes
-        # self.camera.background_color = GREY
-
         # --- Unit Circle
 
         r = 2
@@ -30,7 +27,7 @@ class TrigonometricRadios(MovingCameraScene):
 
         handle = Dot()
         handle.add_updater(lambda vertex: vertex.move_to(
-            r * np.array([np.cos(theta.get_value()), np.sin(theta.get_value()), 0])
+            r * (np.cos(theta.get_value()) * RIGHT + np.sin(theta.get_value()) * UP)
         ))
 
         hypotenuse = Line()
@@ -41,24 +38,18 @@ class TrigonometricRadios(MovingCameraScene):
         leg_x = Line()
         leg_x.add_updater(lambda line: line.put_start_and_end_on(
             ORIGIN,
-            np.array([handle.get_x(), 0, 0])
+            handle.get_x() * RIGHT
         ))
         leg_y = Line()
         leg_y.add_updater(lambda line: line.put_start_and_end_on(
-            np.array([handle.get_x(), 0, 0]),
+            handle.get_x() * RIGHT,
             handle.get_center()
         ))
 
         right_triangle = Group(hypotenuse, leg_x, leg_y, handle)
 
-        #x_axis1 = Line(ORIGIN, ORIGIN + RIGHT)
         angle = always_redraw(lambda:
             EMPTY_MOBJECT if theta.get_value() % TAU == 0
-            # else Angle(
-            #     x_axis, hypotenuse,
-            #     radius=.4,
-            #     other_angle=theta.get_value() < 0
-            # )
             else Arc(
                 angle=theta.get_value(),
                 radius=.4
@@ -79,7 +70,7 @@ class TrigonometricRadios(MovingCameraScene):
         # -- State r = 1
 
         one = TrigonometricRadios._math_tex_factory("r=1")
-        one.move_to(np.array([handle.get_x() / 2, .5, 0]))
+        one.move_to(handle.get_x() / 2 * RIGHT + .5 * UP)
         self.play(Write(one), run_time=.75)
 
         self.wait(.75)
@@ -94,7 +85,7 @@ class TrigonometricRadios(MovingCameraScene):
         self.play(theta.animate.set_value(TAU / 8), run_time=1.5)
 
         theta_label = TrigonometricRadios._math_tex_factory(r"\theta", font_size=40)
-        theta_label.move_to(np.array([.7, .35, 0]))
+        theta_label.move_to(.7 * RIGHT + .35 * UP)
         self.play(SpinInFromNothing(theta_label))
 
         def make_theta_param_tex(normalize_theta = False) -> MathTex:
@@ -120,7 +111,7 @@ class TrigonometricRadios(MovingCameraScene):
 
         self.wait(.5)
 
-        ## -- Second Spin, Angle Back to Positive & Theta Out
+        # -- Second Spin, Angle Back to Positive & Theta Out
 
         self.play(theta.animate.set_value(-7 * TAU / 8), run_time=2.5)
 
@@ -164,41 +155,7 @@ class TrigonometricRadios(MovingCameraScene):
 
         self.wait(.5)
 
-        ## -- Hypotenuse
-        #
-        # hypotenuse_text = TrigonometricRadios._label_factory("hypotenuse", color=YELLOW_E)
-        #
-        # hypotenuse_text.move_to(hypotenuse.get_center() + .3 * rotate_vector(UP, hypotenuse.get_angle()))
-        # hypotenuse_text.rotate(hypotenuse.get_angle())
-        #
-        # self.play(
-        #     AnimationGroup(
-        #         DrawBorderThenFill(hypotenuse_text),
-        #         hypotenuse.animate.set_color(YELLOW_E),
-        #         lag_ratio=.5
-        #     ),
-        #     run_time=1
-        # )
-        #
-        # self.wait(.75)
-        #
-        # hyp_text = TrigonometricRadios._label_factory("hyp", color=YELLOW_E)
-        # hyp_text.move_to(hypotenuse_text.get_center())
-        # hyp_text.rotate(hypotenuse.get_angle())
-        # self.play(
-        #     Transform(hypotenuse_text, hyp_text),
-        #     run_time=.5
-        # )
-        #
-        # self.wait(.5)
-
-        ## -- Opposite Leg
-
-        # opposite_leg_text = TrigonometricRadios._label_factory("opposite\nleg", color=BLUE_D)
-        # opposite_leg_text.move_to(leg_y.get_center() + RIGHT * .75)
-        # self.play(Write(opposite_leg_text))
-        #
-        ## Gotta refactor this into a reusable function
+        # -- Hypotenuse
 
         hyp_label = self._label_triangle_side(
             "hypotenuse", "hyp", YELLOW_E,
@@ -232,35 +189,28 @@ class TrigonometricRadios(MovingCameraScene):
 
         # --- Sine and Cosine Definitions
 
-        #self.play(self.camera.frame.animate.shift(DOWN * .5))
-
         # -- Create the formulas
 
-        # sin(theta) = opp / hyp
         sin_formula = self._math_tex_factory(
             r"\sin(\theta)", "=", r"{\text{opp}", r"\over", r"\text{hyp}}",
             font_size=30
         )
 
-        # cos(theta) = adj / hyp
         cos_formula = self._math_tex_factory(
             r"\cos(\theta)", "=", r"{\text{adj}", r"\over", r"\text{hyp}}",
             font_size=30
         )
 
-        # Position formulas below the labels
         sin_formula.move_to(3.35 * DOWN + 1.25 * LEFT)
         cos_formula.move_to(3.35 * DOWN + 1.25 * RIGHT)
 
-        # Color the parts to match the labels
-        # opp is blue (#27ADF5), adj is GREEN_E, hyp is YELLOW_E
         sin_formula[2].set_color(MOROCCAN_BLUE) # opp
-        sin_formula[4].set_color(YELLOW_E)      # hyp
         cos_formula[2].set_color(GREEN_E)       # adj
+        sin_formula[4].set_color(YELLOW_E)      # hyp
         cos_formula[4].set_color(YELLOW_E)      # hyp
 
-        # Animate labels to formula
-        # We'll use copies of the labels to move them into the formula
+        # Bring copies of the labels into the formulas
+
         opp_copy = opp_leg_label.copy()
         hyp_copy = hyp_label.copy()
 
@@ -312,10 +262,10 @@ class TrigonometricRadios(MovingCameraScene):
         # Simplify formulas (remove / 1)
         sin_simple = self._math_tex_factory(r"\sin(\theta)", "=", r"\text{opp}", font_size=30)
         cos_simple = self._math_tex_factory(r"\cos(\theta)", "=", r"\text{adj}", font_size=30)
-        
+
         sin_simple.move_to(sin_formula)
         cos_simple.move_to(cos_formula)
-        
+
         sin_simple[2].set_color(MOROCCAN_BLUE)
         cos_simple[2].set_color(GREEN_E)
 
@@ -331,9 +281,6 @@ class TrigonometricRadios(MovingCameraScene):
 
         # --- Tangent Definition
 
-        #self.play(self.camera.frame.animate.shift(DOWN))
-
-        # tan(theta) = opp / adj = sin(theta) / cos(theta)
         tan_formula = self._math_tex_factory(
             r"\tan(\theta)", "=", r"{\text{opp}", r"\over", r"\text{adj}}",
             "=", r"{\sin(\theta)", r"\over", r"\cos(\theta)}",
@@ -341,15 +288,15 @@ class TrigonometricRadios(MovingCameraScene):
         )
         tan_formula.move_to(4.25 * DOWN)
 
-        # Color the parts to match the labels
         tan_formula[2].set_color(MOROCCAN_BLUE)  # opp
-        tan_formula[4].set_color(GREEN_E)                # adj
+        tan_formula[4].set_color(GREEN_E)        # adj
         tan_formula[6].set_color(MOROCCAN_BLUE)  # sin
-        tan_formula[8].set_color(GREEN_E)                # cos
+        tan_formula[8].set_color(GREEN_E)        # cos
 
         self.play(Write(tan_formula[0:2]))
 
-        # Move a copy of adj and opp labels (from the triangle labels)
+        # Use copies of adj and opp labels for the definition of the tangent
+
         opp_copy_tan = opp_leg_label.copy()
         adj_copy_tan = adj_leg_label.copy()
 
@@ -368,7 +315,8 @@ class TrigonometricRadios(MovingCameraScene):
 
         self.wait(.5)
 
-        # Move a copy of sin and cos (from the simplified formulas)
+        # Use a copy of sin and cos (from the previous formulas) for the definition of the tangent
+
         sin_copy_tan = sin_simple[0].copy()
         cos_copy_tan = cos_simple[0].copy()
 
@@ -444,38 +392,22 @@ class TrigonometricRadios(MovingCameraScene):
 
         # -- Visual representation of the trigonometric radios
 
-        # Line that extends the hypotenuse forming a similar right triangle with the tangent as opposite leg
-        # hyp_extension = always_redraw(lambda:
-        #     Line(
-        #         handle.get_center(),
-        #         np.array([r, r * np.tan(theta.get_value()), 0]),
-        #         stroke_width=2,
-        #         stroke_opacity=.5
-        #     )
-        # )
         hyp_extension = Line(stroke_width=2, stroke_opacity=.5)
         hyp_extension.add_updater(lambda line: line.put_start_and_end_on(
             handle.get_center(),
-            np.array([r, r * np.tan(theta.get_value()), 0])
+            r * RIGHT + r * np.tan(theta.get_value()) * UP
         ))
 
         # The opposite leg of the mentioned right triangle
         tan_line = Line(
-            np.array([r, 0, 0]),
-            np.array([r, r * np.tan(theta.get_value()), 0]),
+            r * RIGHT,
+            r * RIGHT + (r * np.tan(theta.get_value())) * UP,
             color=PURPLE
         )
         tan_line.add_updater(lambda line: line.put_start_and_end_on(
-            np.array([r, 0, 0]),
-            np.array([r, r * np.tan(theta.get_value()), 0])
+            r * RIGHT,
+            r * RIGHT + r * np.tan(theta.get_value()) * UP
         ))
-        # tan_line = always_redraw(lambda:
-        #     Line(
-        #         np.array([r, 0, 0]),
-        #         np.array([r, r * np.tan(theta.get_value()), 0]),
-        #         color=WHITE
-        #     )
-        # )
 
         opp_side_label = always_redraw(lambda:
             self._math_tex_factory(r"\sin(\theta)", font_size=30, color=MOROCCAN_BLUE)
@@ -502,11 +434,10 @@ class TrigonometricRadios(MovingCameraScene):
             self.play(
                 theta.animate.set_value(TAU + TAU / 8 if i == 5 else i * TAU / 4),
                 run_time=2.25 if i == 1 or i == 5 else 4,
-                #rate_func=linear
                 rate_func=lambda t: (1 - .15) * t + .075 * (1 - np.cos(PI * t))
             )
 
-        self.wait()
+        self.wait(1)
 
     def _label_triangle_side(self, full_name: str, abbreviation: str, color: ManimColor,
                              pos: ndarray, abbreviation_offset: ndarray | None, rotation: float | None,
