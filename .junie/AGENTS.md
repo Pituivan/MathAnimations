@@ -36,8 +36,7 @@ the left side of the expression. For example, `(3, -1)` would be written as `3 *
 - **Favor Factory Methods**: The project often uses internal factory methods for consistent styling of labels
   and TeX elements (e.g., `_label_factory`, `_math_tex_factory` in `TrigonometricRadios.py`). This way, we avoid
   repeating initialization code over and over again.
-- **Color Palettes**: By default, stick to Manim's built-in color constants (e.g., `YELLOW_E`, `GREEN_E`). However,
-  other colors defined by specific hex codes may be used if requested by the human.
+- Write decimal numbers without a leading zero for values between 0 and 1 (e.g., `.5` instead of `0.5`).
 - Avoid redundant parameter assignments (e.g., `color=WHITE` or `run_time=1` when these are the default values).
   The only exception to this rule is the time in waiting commands: use`self.wait(1)`, not `self.wait()`.
 
