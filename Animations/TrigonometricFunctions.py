@@ -168,13 +168,13 @@ class TrigonometricFunctions(MovingCameraScene):
         self.wait(.5)
         opp_leg_label = self._label_triangle_side(
             "opposite\nleg", "opp", MOROCCAN_BLUE,
-            leg_y.get_center() + RIGHT * .75, LEFT * .3 + DOWN * .1, None,
+            leg_y.get_center() + .75 * RIGHT, .3 * LEFT + .1 * DOWN, None,
             leg_y
         )
         self.wait(.5)
         adj_leg_label = self._label_triangle_side(
             "adjacent\nleg", "adj", GREEN_E,
-            leg_x.get_center() + DOWN * .5, UP * .15, None,
+            leg_x.get_center() + .5 * DOWN, .15 * UP, None,
             leg_x
         )
 
@@ -383,9 +383,7 @@ class TrigonometricFunctions(MovingCameraScene):
 
         theta_param_tex = always_redraw(lambda: make_theta_param_tex(normalize_theta=True))
         self.play(
-             self.camera.frame.animate
-                # .move_to(ORIGIN + UP * .2)
-                .scale(1.3),
+             self.camera.frame.animate.scale(1.3),
             remove_triangle_sides_labels,
             reposition_formulas,
             FadeIn(theta_param_tex),
@@ -439,9 +437,9 @@ class TrigonometricFunctions(MovingCameraScene):
         right_triangle.resume_updating()
         for i in range(1, 6):
             self.play(
-                theta.animate.set_value(TAU + TAU / 8 if i == 5 else i * TAU / 4),
+                theta.animate.set_value(9 * TAU / 8 if i == 5 else i * TAU / 4),
                 run_time=2.25 if i == 1 or i == 5 else 4,
-                rate_func=lambda t: (1 - .15) * t + .075 * (1 - np.cos(PI * t))
+                rate_func=lambda t: .85 * t + .075 * (1 - np.cos(PI * t))
             )
 
         self.wait(1)
