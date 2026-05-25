@@ -10,7 +10,7 @@ config.frame_rate = 15
 EMPTY_MOBJECT = VMobject()
 MOROCCAN_BLUE = ManimColor("#27ADF5")
 
-class TrigonometricRadios(MovingCameraScene):
+class TrigonometricFunctions(MovingCameraScene):
     def construct(self):
 
         # --- Unit Circle
@@ -72,7 +72,7 @@ class TrigonometricRadios(MovingCameraScene):
 
         # -- State r = 1
 
-        one = TrigonometricRadios._math_tex_factory("r=1")
+        one = TrigonometricFunctions._math_tex_factory("r=1")
         one.move_to(handle.get_x() / 2 * RIGHT + .5 * UP)
         self.play(Write(one), run_time=.75)
 
@@ -87,14 +87,14 @@ class TrigonometricRadios(MovingCameraScene):
         self.add(leg_x, leg_y, angle)
         self.play(theta.animate.set_value(TAU / 8), run_time=1.5)
 
-        theta_label = TrigonometricRadios._math_tex_factory(r"\theta", font_size=40)
+        theta_label = TrigonometricFunctions._math_tex_factory(r"\theta", font_size=40)
         theta_label.move_to(.7 * RIGHT + .35 * UP)
         self.play(SpinInFromNothing(theta_label))
 
         def make_theta_param_tex(normalize_theta=False) -> MathTex:
             value = round(np.rad2deg(theta.get_value()), 1)
             if normalize_theta: value %= 360
-            result = TrigonometricRadios._math_tex_factory(
+            result = TrigonometricFunctions._math_tex_factory(
                 r"\theta", "=", rf"{value:g}^\circ"
             )
 
@@ -121,7 +121,7 @@ class TrigonometricRadios(MovingCameraScene):
         self.wait(1)
 
         theta_eq = make_theta_param_tex()
-        theta_eq2_part = TrigonometricRadios._math_tex_factory("=", r"45^\circ")
+        theta_eq2_part = TrigonometricFunctions._math_tex_factory("=", r"45^\circ")
         theta_eq2_part.next_to(theta_eq, RIGHT)
 
         right_triangle.suspend_updating()
@@ -449,7 +449,7 @@ class TrigonometricRadios(MovingCameraScene):
     def _label_triangle_side(self, full_name: str, abbreviation: str, color: ManimColor,
                              pos: ndarray, abbreviation_offset: ndarray | None, rotation: float | None,
                              side: Mobject) -> Paragraph:
-        full_name_text = TrigonometricRadios._label_factory(full_name, color=color)
+        full_name_text = TrigonometricFunctions._label_factory(full_name, color=color)
         full_name_text.move_to(pos)
         if rotation is not None:
             full_name_text.rotate(rotation)
@@ -465,7 +465,7 @@ class TrigonometricRadios(MovingCameraScene):
 
         self.wait(.75)
 
-        abbreviated_text = TrigonometricRadios._label_factory(abbreviation, color=color)
+        abbreviated_text = TrigonometricFunctions._label_factory(abbreviation, color=color)
         abbreviated_text.move_to(pos if abbreviation_offset is None else pos + abbreviation_offset)
         if rotation is not None:
             abbreviated_text.rotate(rotation)
