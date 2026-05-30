@@ -1,4 +1,5 @@
 from manim import *
+from typing import Callable
 from numpy import ndarray
 
 config.pixel_width = 1080
@@ -36,9 +37,10 @@ class TrigonometricFunctions(MovingCameraScene):
             handle.get_center()
         ))
         leg_x = Line()
+        leg_x_offset_y = ValueTracker(0)
         leg_x.add_updater(lambda line: line.put_start_and_end_on(
-            ORIGIN,
-            handle.get_x() * RIGHT
+            leg_x_offset_y.get_value() * UP,
+            handle.get_x() * RIGHT + leg_x_offset_y.get_value() * UP
         ))
         leg_y = Line()
         leg_y.add_updater(lambda line: line.put_start_and_end_on(
@@ -400,32 +402,34 @@ class TrigonometricFunctions(MovingCameraScene):
         ))
 
         # The opposite leg of the mentioned right triangle
-        tan_line = Line(
-            r * RIGHT,
-            r * RIGHT + (r * np.tan(theta.get_value())) * UP,
-            color=PURPLE
-        )
+        tan_line = Line(color=PURPLE)
         tan_line.add_updater(lambda line: line.put_start_and_end_on(
             r * RIGHT,
             r * RIGHT + r * np.tan(theta.get_value()) * UP
         ))
 
-        opp_side_label = always_redraw(lambda:
-            self._math_tex_factory(r"\sin(\theta)", font_size=30, color=MOROCCAN_BLUE)
-            .move_to(leg_y.get_center() + RIGHT * .6)
+        sin_label = self._func_label_factory(
+            "sin",
+            MOROCCAN_BLUE,
+            lambda: leg_y.get_center() + .6 * RIGHT
         )
-        adj_side_label = always_redraw(lambda:
-            self._math_tex_factory(r"\cos(\theta)", font_size=30, color=GREEN_E)
-            .move_to(leg_x.get_center() + DOWN * .4)
+
+        cos_label_offset_y = ValueTracker(-.4)
+        cos_label = self._func_label_factory(
+            "cos",
+            GREEN_E,
+            lambda: leg_x.get_center() + cos_label_offset_y.get_value() * UP
         )
-        tan_side_label = always_redraw(lambda:
-            self._math_tex_factory(r"\tan(\theta)", font_size=30, color=PURPLE)
-            .move_to(tan_line.get_center() + RIGHT * .7)
+
+        tan_label = self._func_label_factory(
+            "tan",
+            PURPLE,
+            lambda: tan_line.get_center() + .7 * RIGHT
         )
 
         self.play(
-            FadeIn(opp_side_label), FadeIn(adj_side_label), FadeIn(tan_side_label),
-            Create(tan_line), Create(hyp_extension)
+             Create(hyp_extension), Create(tan_line),
+            FadeIn(tan_label), FadeIn(sin_label), FadeIn(cos_label)
         )
         self.wait(1)
 
@@ -433,16 +437,191 @@ class TrigonometricFunctions(MovingCameraScene):
         angle = always_redraw(lambda: draw_angle(normalize=True))
         self.add(angle)
 
-        # Move theta and see it update
         right_triangle.resume_updating()
-        for i in range(1, 6):
-            self.play(
-                theta.animate.set_value(9 * TAU / 8 if i == 5 else i * TAU / 4),
-                run_time=2.25 if i == 1 or i == 5 else 4,
-                rate_func=lambda t: .85 * t + .075 * (1 - np.cos(PI * t))
-            )
+        self._spin_angle(theta)
+        theta.set_value(TAU / 8)
+
+        self.wait(1.5)
+
+        # --- Define and draw Inverse Functions
+
+        # -- Reorganize elements in screen
+
+        x_axis_extension = Line(stroke_width=2, stroke_opacity=.5, z_index=-1)
+        x_axis_extension.add_updater(lambda line: line.put_start_and_end_on(
+            r * RIGHT,
+            r / np.cos(theta.get_value()) * RIGHT
+        ))
+
+        hyp_extension.clear_updaters()
+        tan_line.clear_updaters()
+        reposition_tan = AnimationGroup(
+            hyp_extension.animate.put_start_and_end_on(
+                hypotenuse.get_start(),
+                hypotenuse.get_end()
+            ),
+            tan_line.animate.put_start_and_end_on(
+                np.sqrt(2) * r * RIGHT, # Pre-calculated x-intersect
+                handle.get_center()
+            ),
+            Create(x_axis_extension)
+        )
+
+        self.play(
+            FadeOut(theta_param_tex),
+            reposition_tan,
+            leg_x_offset_y.animate.set_value(r * np.cos(theta.get_value())),
+            cos_label_offset_y.animate.set_value(.4)
+        )
+        self.remove(hyp_extension)
+        leg_x_offset_y.add_updater(lambda m: m.set_value(r * np.sin(theta.get_value())))
+
+        tan_line.add_updater(lambda line: line.put_start_and_end_on(
+            r / np.cos(theta.get_value()) * RIGHT,
+            handle.get_center()
+        ))
 
         self.wait(1)
+
+        # -- Visually present sec, csc and cot
+
+        # Secant
+
+        sec_line = Line(color=ORANGE)
+        sec_line.add_updater(lambda line: line.put_start_and_end_on(
+            ORIGIN,
+            r / np.cos(theta.get_value()) * RIGHT
+        ))
+
+        sec_label = self._func_label_factory(
+            "sec",
+            ORANGE,
+            lambda: sec_line.get_center() + .4 * DOWN
+        )
+
+        # self.play(Create(sec_line), FadeIn(sec_label))
+
+        # self.wait(.75)
+
+        # Cosecant and cotangent
+
+        csc_line_trace = Line(
+            r * UP, r / np.sin(theta.get_value()) * UP,
+            stroke_width=2, stroke_opacity=.5
+        )
+
+        cot_line_trace = Line(
+            handle.get_center(), r / np.sin(theta.get_value()) * UP,
+            stroke_width=2, stroke_opacity=.5
+        )
+
+        self.play(Create(csc_line_trace), Create(cot_line_trace))
+        self.wait(.5)
+
+        csc_line = Line(color=YELLOW_E)
+        csc_line.add_updater(lambda line: line.put_start_and_end_on(
+            ORIGIN,
+            r / np.sin(theta.get_value()) * UP
+        ))
+
+        cot_line = Line(color=PURE_MAGENTA)
+        cot_line.add_updater(lambda line: line.put_start_and_end_on(
+            handle.get_center(),
+            r / np.sin(theta.get_value()) * UP
+        ))
+
+        csc_label = self._func_label_factory(
+            "csc",
+            YELLOW_E,
+            lambda: csc_line.get_center() + .6 * LEFT
+        )
+
+        cot_label = self._func_label_factory(
+            "cot",
+            PURE_MAGENTA,
+            lambda: cot_line.get_center() + .7 * RIGHT
+        )
+
+        self.play(
+            Create(sec_line), Create(csc_line), Create(cot_line),
+             FadeIn(sec_label), FadeIn(csc_label), FadeIn(cot_label)
+        )
+        self.remove(x_axis_extension, csc_line_trace, cot_line_trace)
+
+        self.wait(1)
+
+        # -- Write the inverse functions definitions
+
+        formulas = Group(sin_simple[:2], cos_simple[:2], tan_formula[:2])
+        self.play(
+            formulas.animate.shift(.5 * DOWN),
+            self.camera.frame.animate.shift(2 * DOWN)
+        )
+
+        csc_formula = self._math_tex_factory(r"\csc(\theta) =", r"{1 \over \sin(\theta)}", font_size=30)
+        csc_formula[1][2:].set_color(MOROCCAN_BLUE)
+        csc_formula.move_to(4.75 * DOWN + 2.5 * LEFT, aligned_edge=LEFT)
+
+        sec_formula = self._math_tex_factory(r"\sec(\theta) =", r"{1 \over \cos(\theta)}", font_size=30)
+        sec_formula[1][2:].set_color(GREEN_E)
+        sec_formula.move_to(5.75 * DOWN + 2.5 * LEFT, aligned_edge=LEFT)
+
+        cot_formula = self._math_tex_factory(r"\cot(\theta) =", r"{1 \over \tan(\theta)}", font_size=30)
+        cot_formula[1][2:].set_color(PURPLE)
+        cot_formula.move_to(6.75 * DOWN + 2.5 * LEFT, aligned_edge=LEFT)
+
+        self.wait(.75)
+
+        self.play(
+            Write(csc_formula),
+            Write(sec_formula),
+            Write(cot_formula)
+        )
+
+        self.wait(1)
+
+        csc_formula_short = self._math_tex_factory(r"\csc(\theta) =", font_size=30)
+        csc_formula_short.move_to(4.75 * DOWN + 2.5 * LEFT, aligned_edge=LEFT)
+
+        sec_formula_short = self._math_tex_factory(r"\sec(\theta) =", font_size=30)
+        sec_formula_short.move_to(5.75 * DOWN + 2.5 * LEFT, aligned_edge=LEFT)
+
+        cot_formula_short = self._math_tex_factory(r"\cot(\theta) =", font_size=30)
+        cot_formula_short.move_to(6.75 * DOWN + 2.5 * LEFT, aligned_edge=LEFT)
+
+        csc_value = DecimalNumber(1 / np.sin(theta.get_value()), num_decimal_places=2, font_size=30, color=YELLOW_E)
+        csc_value.add_updater(lambda m: m.set_value(1 / np.sin(theta.get_value())).next_to(csc_formula_short, RIGHT))
+
+        sec_value = DecimalNumber(1 / np.cos(theta.get_value()), num_decimal_places=2, font_size=30, color=ORANGE)
+        sec_value.add_updater(lambda m: m.set_value(1 / np.cos(theta.get_value())).next_to(sec_formula_short, RIGHT))
+
+        cot_value = DecimalNumber(1 / np.tan(theta.get_value()), num_decimal_places=2, font_size=30, color=PURE_MAGENTA)
+        cot_value.add_updater(lambda m: m.set_value(1 / np.tan(theta.get_value())).next_to(cot_formula_short, RIGHT))
+
+        self.play(
+            AnimationGroup(
+                FadeOut(csc_formula), FadeIn(csc_formula_short),
+                FadeOut(sec_formula), FadeIn(sec_formula_short),
+                FadeOut(cot_formula), FadeIn(cot_formula_short),
+
+                csc_formula_short.animate.move_to(4.5 * DOWN + 2.5 * LEFT, aligned_edge=LEFT),
+                sec_formula_short.animate.move_to(5 * DOWN + 2.5 * LEFT, aligned_edge=LEFT),
+                cot_formula_short.animate.move_to(5.5 * DOWN + 2.5 * LEFT, aligned_edge=LEFT),
+
+                Write(csc_value),
+                Write(sec_value),
+                Write(cot_value),
+            ),
+            self.camera.frame.animate.shift(2 * UP)
+        )
+
+        self.wait(1)
+
+        # -- Dynamic Demonstration 2
+
+        self._spin_angle(theta)
+
+        self.wait(1.5)
 
     def _label_triangle_side(self, full_name: str, abbreviation: str, color: ManimColor,
                              pos: ndarray, abbreviation_offset: ndarray | None, rotation: float | None,
@@ -475,13 +654,41 @@ class TrigonometricFunctions(MovingCameraScene):
 
         return full_name_text
 
+    def _spin_angle(self, angle: ValueTracker):
+        for i in range(1, 6):
+            self.play(
+                angle.animate.set_value(9 * TAU / 8 if i == 5 else i * TAU / 4),
+                run_time=2.25 if i == 1 or i == 5 else 4,
+                rate_func=lambda t: .85 * t + .075 * (1 - np.cos(PI * t))
+            )
+
+    @staticmethod
+    def _func_label_factory(name: str, color: ManimColor, calculate_pos: Callable[[], ndarray]) -> MathTex:
+        result = TrigonometricFunctions._math_tex_factory(
+            rf"\{name}(\theta)",
+            font_size=30,
+            color=color
+        )
+        result.add_updater(
+            lambda tex: (
+                lambda pos: tex.move_to(
+                    # Don't let label go off the screen, since that'd break the text
+                    np.clip(pos[0], -3, 3) * RIGHT +
+                    np.clip(pos[1], -6, 6) * UP
+                )
+            )(calculate_pos())
+        )
+
+        return result
+
     @staticmethod
     def _label_factory(text: str, font_size: float = 20, color: ManimColor = WHITE) -> Paragraph:
         return Paragraph(
             *text.split("\n"),
             font_size=font_size,
             color=color,
-            alignment="center"
+            alignment="center",
+            z_index=1
         )
 
     @staticmethod
@@ -489,5 +696,6 @@ class TrigonometricFunctions(MovingCameraScene):
         return MathTex(
             *tex_strings,
             font_size=font_size,
-            color=color
+            color=color,
+            z_index=1
         )
