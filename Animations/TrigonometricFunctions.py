@@ -637,12 +637,18 @@ class TrigonometricFunctions(MovingCameraScene):
         return full_name_text
 
     def _spin_angle(self, angle: ValueTracker):
-        for i in range(1, 6):
+        def play_anim(target, run_time):
             self.play(
-                angle.animate.set_value(9 * TAU / 8 if i == 5 else i * TAU / 4),
-                run_time=2.25 if i == 1 or i == 5 else 4,
+                angle.animate.set_value(target),
+                run_time=run_time,
                 rate_func=lambda t: .85 * t + .075 * (1 - np.cos(PI * t))
             )
+
+        for i in range(1, 5):
+            play_anim(i * TAU / 4, 2.25 if i == 1 else 4)
+
+        angle.set_value(1e-10)
+        play_anim(TAU / 8, 2.25)
 
     @staticmethod
     def _func_label_factory(name: str, color: ManimColor, calculate_pos: Callable[[], ndarray]) -> MathTex:
