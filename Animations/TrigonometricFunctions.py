@@ -156,7 +156,6 @@ class TrigonometricFunctions(MovingCameraScene):
         # -- Zoom In
 
         self.play(self.camera.frame.animate.scale(.75))
-        #self.play(self.camera.frame.animate.shift(DOWN * .75))
 
         self.wait(.5)
 
@@ -275,10 +274,8 @@ class TrigonometricFunctions(MovingCameraScene):
         cos_simple[2].set_color(GREEN_E)
 
         self.play(
-            FadeOut(sin_formula[3:5]),
-            FadeOut(cos_formula[3:5]),
-            ReplacementTransform(sin_formula[0:3], sin_simple),
-            ReplacementTransform(cos_formula[0:3], cos_simple),
+            FadeOut(sin_formula[3:5]), FadeOut(cos_formula[3:5]),
+            ReplacementTransform(sin_formula[0:3], sin_simple), ReplacementTransform(cos_formula[0:3], cos_simple),
             run_time=.5
         )
 
@@ -346,9 +343,6 @@ class TrigonometricFunctions(MovingCameraScene):
         # repositioned to the left, thus the tangent line doesn't draw over them.
 
         remove_triangle_sides_labels = AnimationGroup(
-            # sin_simple.animate.shift(UP * 6),
-            # cos_simple.animate.shift(UP * 6),
-            # tan_formula.animate.shift(UP * 2)
             FadeOut(hyp_label, shift=DOWN),
             FadeOut(opp_leg_label, shift=DOWN),
             FadeOut(adj_leg_label, shift=DOWN)
@@ -373,12 +367,8 @@ class TrigonometricFunctions(MovingCameraScene):
         tan_value.add_updater(lambda d: d.set_value(np.tan(theta.get_value())).next_to(tan_formula[1], RIGHT))
 
         replace_formulas_values = AnimationGroup(
-            FadeIn(sin_value),
-            FadeIn(cos_value),
-            FadeIn(tan_value),
-            FadeOut(sin_simple[2]),
-            FadeOut(cos_simple[2]),
-            FadeOut(tan_formula[2:]),
+            FadeIn(sin_value), FadeIn(cos_value), FadeIn(tan_value),
+            FadeOut(sin_simple[2]), FadeOut(cos_simple[2]), FadeOut(tan_formula[2:])
         )
 
         # -- Reorganize elements in screen
@@ -485,30 +475,16 @@ class TrigonometricFunctions(MovingCameraScene):
 
         # -- Visually present sec, csc and cot
 
-        # Secant
+        csc_line_trace = Line(
+            r * UP, r / np.sin(theta.get_value()) * UP,
+            stroke_width=2, stroke_opacity=.5
+        )
 
         sec_line = Line(color=ORANGE)
         sec_line.add_updater(lambda line: line.put_start_and_end_on(
             ORIGIN,
             r / np.cos(theta.get_value()) * RIGHT
         ))
-
-        sec_label = self._func_label_factory(
-            "sec",
-            ORANGE,
-            lambda: sec_line.get_center() + .4 * DOWN
-        )
-
-        # self.play(Create(sec_line), FadeIn(sec_label))
-
-        # self.wait(.75)
-
-        # Cosecant and cotangent
-
-        csc_line_trace = Line(
-            r * UP, r / np.sin(theta.get_value()) * UP,
-            stroke_width=2, stroke_opacity=.5
-        )
 
         cot_line_trace = Line(
             handle.get_center(), r / np.sin(theta.get_value()) * UP,
@@ -534,6 +510,12 @@ class TrigonometricFunctions(MovingCameraScene):
             "csc",
             YELLOW_E,
             lambda: csc_line.get_center() + .6 * LEFT
+        )
+
+        sec_label = self._func_label_factory(
+            "sec",
+            ORANGE,
+            lambda: sec_line.get_center() + .4 * DOWN
         )
 
         cot_label = self._func_label_factory(
