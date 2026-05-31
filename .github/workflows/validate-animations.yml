@@ -47,8 +47,9 @@ jobs:
           set -euo pipefail # In case git diff fails
           
           git fetch origin ${{ github.base_ref }}
-          echo "changed_animations=$(git diff --name-only origin/${{ github.base_ref }}...HEAD -- Animations/ \
-            | xargs)" >> $GITHUB_OUTPUT
+          CHANGED_ANIMATIONS=$(git diff --name-only origin/${{ github.base_ref }}...HEAD -- Animations/ \
+            | xargs)
+          echo "changed_animations=$CHANGED_ANIMATIONS" >> $GITHUB_OUTPUT
 
       - name: Get changed Animations files (Push)
         if: github.event_name == 'push'
@@ -57,8 +58,9 @@ jobs:
           set -euo pipefail
           
           git fetch origin ${{ github.ref_name }}
-          echo "changed_animations=$(git diff --name-only ${{ github.event.before }} ${{ github.event.after }} -- Animations/ \
-            | xargs)" >> $GITHUB_OUTPUT     
+          CHANGED_ANIMATIONS=$(git diff --name-only ${{ github.event.before }} ${{ github.event.after }} -- Animations/ \
+            | xargs)
+          echo "changed_animations=$CHANGED_ANIMATIONS" >> $GITHUB_OUTPUT     
 
       - name: Validate modified scenes
         run: |
