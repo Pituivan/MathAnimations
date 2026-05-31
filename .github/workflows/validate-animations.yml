@@ -1,0 +1,74 @@
+name: Validate Animations
+
+on:
+  push:
+    paths:
+      - 'Animations/**/*.py'
+  pull_request:
+    paths:
+      - 'Animations/**/*.py'
+
+jobs:
+  validate-scenes:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install Manim and dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            ffmpeg \
+            pkg-config \
+            build-essential \
+            python3-dev \
+            libcairo2-dev \
+            libpango1.0-dev \
+            texlive-latex-base \
+            texlive-latex-extra \
+            texlive-fonts-recommended \
+            texlive-science
+
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Get changed Animations files (PR)
+        if: github.event_name == 'pull_request'
+        id: pr_changes
+        run: |
+          set -euo pipefail # In case git diff fails
+          
+          git fetch origin ${{ github.base_ref }}
+          echo "changed_animations=$(git diff --name-only origin/${{ github.base_ref }}...HEAD -- Animations/ \
+            | xargs)" >> $GITHUB_OUTPUT
+
+      - name: Get changed Animations files (Push)
+        if: github.event_name == 'push'
+        id: push_changes
+        run: |
+          set -euo pipefail
+          
+          git fetch origin ${{ github.ref_name }}
+          echo "changed_animations=$(git diff --name-only ${{ github.event.before }} ${{ github.event.after }} -- Animations/ \
+            | xargs)" >> $GITHUB_OUTPUT     
+
+      - name: Validate modified scenes
+        run: |
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            CHANGED_ANIMATIONS_FILES="${{ steps.pr_changes.outputs.changed_animations }}"
+          else
+            CHANGED_ANIMATIONS_FILES="${{ steps.push_changes.outputs.changed_animations }}"
+          fi
+          
+          for file in $CHANGED_ANIMATIONS_FILES; do
+            scene=$(basename "$file" .py)
+            manim "$file" "$scene" --dry_run
+          done
