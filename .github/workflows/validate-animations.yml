@@ -40,37 +40,19 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
-      - name: Get changed Animations files (PR)
-        if: github.event_name == 'pull_request'
-        id: pr_changes
-        run: |
-          set -euo pipefail # In case git diff fails
-          
-          git fetch origin ${{ github.base_ref }}
-          CHANGED_ANIMATIONS=$(git diff --name-only origin/${{ github.base_ref }}...HEAD -- Animations/ \
-            | xargs)
-          echo "changed_animations=$CHANGED_ANIMATIONS" >> $GITHUB_OUTPUT
-
-      - name: Get changed Animations files (Push)
-        if: github.event_name == 'push'
-        id: push_changes
-        run: |
-          set -euo pipefail
-          
-          git fetch origin ${{ github.ref_name }}
-          CHANGED_ANIMATIONS=$(git diff --name-only ${{ github.event.before }} ${{ github.event.after }} -- Animations/ \
-            | xargs)
-          echo "changed_animations=$CHANGED_ANIMATIONS" >> $GITHUB_OUTPUT     
+      - name: Get changed Animations files
+        id: changes
+        uses: tj-actions/changed-files@v45
+        with:
+          files: |
+            Animations/**/*.py
 
       - name: Validate modified scenes
         run: |
-          if [ "${{ github.event_name }}" = "pull_request" ]; then
-            CHANGED_ANIMATIONS_FILES="${{ steps.pr_changes.outputs.changed_animations }}"
-          else
-            CHANGED_ANIMATIONS_FILES="${{ steps.push_changes.outputs.changed_animations }}"
-          fi
-          
-          for file in $CHANGED_ANIMATIONS_FILES; do
+          for file in ${{ steps.changes.outputs.added_files }} \
+                      ${{ steps.changes.outputs.modified_files }} \
+                      ${{ steps.changes.outputs.renamed_files }}
+          do
             scene=$(basename "$file" .py)
             manim "$file" "$scene" --dry_run
           done
