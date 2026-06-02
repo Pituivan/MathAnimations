@@ -11,6 +11,7 @@ config.frame_rate = 15
 EMPTY_MOBJECT = VMobject()
 MOROCCAN_BLUE = ManimColor("#27ADF5")
 
+
 class TrigonometricFunctions(MovingCameraScene):
     def construct(self):
 
