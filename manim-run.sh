@@ -24,5 +24,4 @@ case "$QUALITY" in
       ;;
 esac
 
-rm -rf media/
 python -m manim "$Q" -p "$FILE" "$SCENE" --fps "$FPS"
