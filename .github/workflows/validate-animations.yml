@@ -1,12 +1,12 @@
-name: Validate Animations
+name: Validate animations
 
 on:
   push:
     paths:
-      - 'Animations/**/*.py'
+      - 'animations/**/*.py'
   pull_request:
     paths:
-      - 'Animations/**/*.py'
+      - 'animations/**/*.py'
 
 jobs:
   validate-scenes:
@@ -40,12 +40,12 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
-      - name: Get changed Animations files
+      - name: Get changed animations files
         id: changes
         uses: tj-actions/changed-files@v45
         with:
           files: |
-            Animations/**/*.py
+            animations/**/*.py
 
       - name: Validate modified scenes
         run: |
