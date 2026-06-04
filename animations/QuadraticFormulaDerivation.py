@@ -22,7 +22,9 @@ class QuadraticFormulaDerivation(Scene):
         # --- Phase 1: Present the quadratic equation, then convert the left hand to monic form
 
         equation = MathTex("a", "x^2", "+", "b", "x", "+", "c", "=", "0")
-        steps = [
+
+        self.play(Write(equation, run_time=1.5))
+        equation = derive_equation(self, equation, [
             # We need to keep TeX groups separate so TransformMatchingTex animation doesn't turn into a fade.
             # Hence, we can't use \frac for fractions since they require grouped {numerator}{denominator} in a single TeX group.
             # We also can't use \over, since the = sign and the right side of the equation would fall into the denominator.
@@ -42,9 +44,6 @@ class QuadraticFormulaDerivation(Scene):
                 "0",
                 delay=.75, transition_duration=.75
             )
-        ]
-
-        self.play(Write(equation, run_time=1.5))
-        equation = derive_equation(self, equation, steps)
+        ])
 
         self.wait(1.5)
