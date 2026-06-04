@@ -24,7 +24,13 @@ class DerivationStep:
         self.delay = delay
 
 
-def derive_equation(scene: Scene, base_equation: MathTex, steps: list[DerivationStep]) -> None:
+def derive_equation(scene: Scene, base_equation: MathTex, steps: list[DerivationStep]) -> MathTex:
+    """
+    Returns:
+        MathTex:
+            The final equation after all derivation steps have been applied.
+    """
+
     current_tex = base_equation
     for next_step in steps:
         if next_step.delay: scene.wait(next_step.delay)
@@ -34,3 +40,5 @@ def derive_equation(scene: Scene, base_equation: MathTex, steps: list[Derivation
         ))
 
         current_tex = next_step.tex
+
+    return current_tex
