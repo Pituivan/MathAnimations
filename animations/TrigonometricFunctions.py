@@ -14,7 +14,6 @@ MOROCCAN_BLUE = ManimColor("#27ADF5")
 
 class TrigonometricFunctions(MovingCameraScene):
     def construct(self):
-
         # --- Unit Circle
 
         r = 2

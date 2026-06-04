@@ -37,8 +37,7 @@ jobs:
             texlive-fonts-recommended \
             texlive-science
 
-          python -m pip install --upgrade pip
-          pip install -r requirements.txt
+          pip install -e .
 
       - name: Get changed animations files
         id: changes
