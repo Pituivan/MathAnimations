@@ -1,38 +1,44 @@
-from manim import MathTex, TransformMatchingTex, Succession
+from manim import (MathTex, TransformMatchingTex,
+                   Wait, Succession)
 
 
-def derive_equation(base_equation: MathTex, steps: list[tuple[MathTex, float] | MathTex]) -> Succession:
-    """
-    Generates a sequence of animations representing a step-by-step equation derivation.
+START_G = r"\left."
+END_G = r"\right."
 
-    Args:
-        base_equation (MathTex):
-            The initial equation from which the derivation begins.
 
-        steps (list[tuple[MathTex, float] | MathTex]):
-            A list of the successive steps of the mathematical derivation animation to be returned.
+class DerivationStep:
+    def __init__(self, *tex_strings: str, transition_duration: float = 1, delay: float = 0):
+        """
+        Parameters:
+            *tex_strings (str):
+                A series of LaTeX strings that form the resulting MathTex expression.
 
-            Each step may be a tuple of the form (MathTex, float), where:
-                - The MathTex represents the resulting expression after the derivation step.
-                - The float represents the duration (in seconds) of the transition from the previous step to this one.
+            transition_duration (float, optional):
+                Duration of the transition from the previous step to this one.
 
-            Or, alternatively, a single MathTex, in which case the transition duration is 1.
-    """
+            delay (float, optional):
+                Delay before performing the transition from the previous step to this one.
+        """
 
-    if len(steps) == 0:
+        if tex_strings: self.tex = MathTex(*tex_strings)
+        self.transition_duration = transition_duration
+        self.delay = delay
+
+def derive_equation(base_equation: MathTex, steps: list[DerivationStep]) -> Succession:
+    if not steps:
         return Succession()
 
     animations = []
 
-    current = base_equation
+    current_step = DerivationStep()
+    current_step.tex = base_equation
     for next_step in steps:
-        if isinstance(next_step, tuple):
-            next_step, duration = next_step
-        else:
-            duration = 1
+        animations.append(Wait(next_step.delay))
+        animations.append(TransformMatchingTex(
+            current_step.tex, next_step.tex,
+            run_time=next_step.transition_duration
+        ))
 
-        animations.append(TransformMatchingTex(current, next_step, run_time=duration))
-
-        current = next_step
+        current_step = next_step
 
     return Succession(*animations)
