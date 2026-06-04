@@ -1,5 +1,4 @@
-from manim import MathTex, TransformMatchingTex, Wait, Animation
-from typing import Generator
+from manim import Scene, MathTex, TransformMatchingTex
 
 
 START_G = r"\left."
@@ -20,22 +19,18 @@ class DerivationStep:
                 Delay before performing the transition from the previous step to this one.
         """
 
-        self.tex_strings = tex_strings
+        self.tex = MathTex(*tex_strings)
         self.transition_duration = transition_duration
         self.delay = delay
 
-    def build_tex(self) -> MathTex:
-        return MathTex(*self.tex_strings)
 
-
-def derive_equation(base_equation: MathTex, steps: list[DerivationStep]) -> Generator[Animation]:
+def derive_equation(scene: Scene, base_equation: MathTex, steps: list[DerivationStep]) -> None:
     current_tex = base_equation
     for next_step in steps:
-        next_tex = next_step.build_tex()
-        yield Wait(next_step.delay)
-        yield TransformMatchingTex(
-            current_tex, next_tex,
+        if next_step.delay: scene.wait(next_step.delay)
+        scene.play(TransformMatchingTex(
+            current_tex, next_step.tex,
             run_time=next_step.transition_duration
-        )
+        ))
 
-        current_tex = next_tex
+        current_tex = next_step.tex
