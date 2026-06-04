@@ -9,21 +9,21 @@ BACKGROUND_COLOR=""
 
 shift
 while [[ $# -gt 0 ]]; do
-    case "$1" in
-        --quality) QUALITY="$2"; shift 2 ;;
-        --fps) FPS="$2"; shift 2 ;;
-        --background_color) BACKGROUND_COLOR="$2"; shift 2 ;;
-    esac
+  case "$1" in
+    --quality) QUALITY="$2"; shift 2 ;;
+    --fps) FPS="$2"; shift 2 ;;
+    --background_color) BACKGROUND_COLOR="$2"; shift 2 ;;
+  esac
 done
 
 case "$QUALITY" in
-    0) Q="-ql" ;;
-    1) Q="-qm" ;;
-    2) Q="-qh" ;;
-    *)
-      echo "Invalid quality: $QUALITY. Valid values are 0 (low), 1 (medium), or 2 (high)."
-      exit 1
-      ;;
+  0) Q="-ql" ;;
+  1) Q="-qm" ;;
+  2) Q="-qh" ;;
+  *)
+    echo "Invalid quality: $QUALITY. Valid values are 0 (low), 1 (medium), or 2 (high)."
+    exit 1
+    ;;
 esac
 
 
