@@ -1,6 +1,5 @@
 from manim import *
-from manim.utils.rate_functions import ease_in_cubic
-
+from manim.utils.rate_functions import ease_in_cubic, ease_out_sine
 from utils.latex_helpers import (derive_equation, DerivationStep,
                                  START_G, END_G)
 
@@ -211,13 +210,13 @@ class QuadraticFormulaDerivation(Scene):
         # -- (b / 2a)² to left hand of binomial square identity
 
         bsi_formula = derive_equation(self, bsi_formula, [
-            DerivationStep(
+            DerivationStep( # Reformat TeX
                 r"\bigl(x +", (rf"{START_G} b \over 2a {END_G}", YELLOW_E), r"\bigr)^2", "=",
                 "x^2 +", (rf"{START_G} b \over a {END_G}", ORANGE), "x",
                 "+", r"{\bigl(}", (rf"{START_G} b \over 2a {END_G}", YELLOW_E), r"\bigr)^2",
                 delay=0, transition_duration=.25, transform_type=FadeTransform
             ),
-            DerivationStep(
+            DerivationStep( # Add -(b / a)² to both hands
                 r"\bigl(x +", (rf"{START_G} b \over 2a {END_G}", YELLOW_E), r"\bigr)^2",
                 "-", r"\bigl(", (rf"{{{START_G} b \over 2a {END_G}}}", YELLOW_E), r"{\bigr)^2}", "=",
                 "x^2 +", (rf"{START_G} b \over a {END_G}", ORANGE), "x"
@@ -225,10 +224,20 @@ class QuadraticFormulaDerivation(Scene):
                 "-", r"{\bigl(}", (rf"{{{{{START_G} b \over 2a {END_G}}}}}", YELLOW_E), r"{{\bigr)^2}}",
                 delay=.75, transition_duration=1.25
             ),
-            DerivationStep(
+            DerivationStep( # Color cancelling terms in red
+                r"\bigl(x +", (rf"{START_G} b \over 2a {END_G}", YELLOW_E), r"\bigr)^2",
+                "-", r"\bigl(", (rf"{{{START_G} b \over 2a {END_G}}}", YELLOW_E), r"{\bigr)^2}", "=",
+                "x^2 +", (rf"{START_G} b \over a {END_G}", ORANGE), "x"
+                "+", r"{\bigl(}", rf"{START_G} b \over 2a {END_G}", r"\bigr)^2",
+                "-", r"{\bigl(}", rf"{{{{{START_G} b \over 2a {END_G}}}}}", r"{{\bigr)^2}}",
+                on_build=lambda tex: tex[11:].set_color(RED_C),
+                rate_func=ease_out_sine, transition_duration=.5
+            ),
+            DerivationStep( # Remove cancelling terms
                 r"\bigl(x +", (rf"{START_G} b \over 2a {END_G}", YELLOW_E), r"\bigr)^2",
                 "-", r"\bigl(", (rf"{{{START_G} b \over 2a {END_G}}}", YELLOW_E), r"\bigr)^2", "=",
-                "x^2 +", (rf"{START_G} b \over a {END_G}", ORANGE), "x"
+                "x^2 +", (rf"{START_G} b \over a {END_G}", ORANGE), "x",
+                delay=.5
             )
         ])
 
