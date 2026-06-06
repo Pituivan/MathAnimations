@@ -8,8 +8,10 @@ END_G = r"\right."
 
 
 class DerivationStep:
+    default_transform_type: type[Transform] | type[TransformMatchingAbstractBase] = TransformMatchingTex
+
     def __init__(self, *parts: str | tuple[str, ManimColor], transition_duration: float = 1, delay: float =1,
-                 transform_type: type[Transform | TransformMatchingAbstractBase] = TransformMatchingTex,
+                 transform_type: type[Transform] | type[TransformMatchingAbstractBase] = default_transform_type,
                  rate_func: Callable[[float], float] = None,
                  on_build: Callable[[MathTex], None] = None):
         """
@@ -24,7 +26,7 @@ class DerivationStep:
             delay (float, optional):
                 Delay before performing the transition from the previous step to this one.
 
-            transform_type (type[TransformMatchingAbstractBase], optional):
+            transform_type (type[Transform] | type[TransformMatchingAbstractBase], optional):
                 Type of Transform animation that will be used as transitioning animation from the previous step to this one.
 
             rate_func (Callable[[float], float], optional):
@@ -74,6 +76,6 @@ def derive_equation(scene: Scene, base_equation: MathTex, steps: list[Derivation
     return current_tex
 
 
-def color_tex_by_ranges(tex: MathTex, color: ManimColor, *ranges: tuple[int, int]):
+def color_tex_by_ranges(tex: MathTex, color: ManimColor, *ranges: tuple[int | None, int | None]):
     for start, end in ranges:
         tex[start:end].set_color(color)

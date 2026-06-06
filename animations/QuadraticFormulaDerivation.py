@@ -1,6 +1,6 @@
 from manim import *
-from manim.utils.rate_functions import ease_in_cubic, ease_out_sine
-from utils.latex_helpers import (derive_equation, DerivationStep,
+from manim.utils.rate_functions import ease_in_cubic, ease_out_sine, ease_in_out_cubic
+from utils.latex_helpers import (derive_equation, DerivationStep, color_tex_by_ranges,
                                  START_G, END_G)
 
 MOROCCAN_BLUE = ManimColor("#27ADF5")
@@ -272,5 +272,126 @@ class QuadraticFormulaDerivation(Scene):
                 lag_ratio=.5
             )
         )
+
+        # --- Phase 3: Isolate x and simplify expression
+
+        equation = derive_equation(self, equation, [
+            DerivationStep( # Add (b / 2a)² to both hands
+                r"\bigl(x +", rf"{START_G} b \over 2a {END_G}", r"\bigr)^2",
+                "-", r"\bigl(", rf"{{{START_G} b \over 2a {END_G}}}", r"\bigr)^2",
+                "+", START_G, "c", r"\over {a}", END_G, START_G,
+                "+", r"\bigl(", rf"{{{START_G} b \over 2a {END_G}}}", r"\bigr)^2",
+                "=", END_G, "0",
+                "+", r"\bigl(", rf"{{{START_G} b \over 2a {END_G}}}", r"\bigr)^2",
+                delay=1.5
+            ),
+            DerivationStep( # Color cancelling terms in red
+                r"\bigl(x +", rf"{START_G} b \over 2a {END_G}", r"\bigr)^2",
+                "-", r"\bigl(", rf"{{{START_G} b \over 2a {END_G}}}", r"\bigr)^2",
+                "+", START_G, "c", r"\over {a}", END_G, START_G,
+                "+", r"\bigl(", rf"{{{START_G} b \over 2a {END_G}}}", r"\bigr)^2",
+                "=", END_G, "0",
+                "+", r"\bigl(", rf"{{{START_G} b \over 2a {END_G}}}", r"\bigr)^2",
+                on_build=lambda tex: color_tex_by_ranges(tex, RED_C, (3,7), (13,17)),
+                rate_func=ease_out_sine, transition_duration=.5, delay=.5
+            ),
+            DerivationStep( # Remove cancelling terms
+                r"\bigl(x +", rf"{START_G} b \over 2a {END_G}", r"\bigr)^2",
+                "+", START_G, "c", r"\over {a}", END_G,
+                START_G, "=", END_G,
+                r"\bigl(", rf"{{{START_G} b \over 2a {END_G}}}", r"\bigr)^2",
+                delay=.5
+            ),
+            DerivationStep( # Subtract c / a to both hands
+                r"\bigl(x +", rf"{START_G} b \over 2a {END_G}", r"\bigr)^2",
+                "+", START_G, "c", r"\over {a}", END_G,
+                rf"- {START_G} c \over {{a}} {END_G}",
+                START_G, "=", END_G,
+                r"\bigl(", rf"{{{START_G} b \over 2a {END_G}}}", r"\bigr)^2",
+                rf"{{- {START_G} c \over {{a}} {END_G}}}"
+            ),
+            DerivationStep( # Color cancelling terms in red
+                r"\bigl(x +", rf"{START_G} b \over 2a {END_G}", r"\bigr)^2",
+                ("+", RED_C), START_G, ("c", RED_C), (r"\over {a}", RED_C), END_G,
+                (rf"- {START_G} c \over {{a}} {END_G}", RED_C),
+                START_G, "=", END_G,
+                r"\bigl(", rf"{{{START_G} b \over 2a {END_G}}}", r"\bigr)^2",
+                rf"{{- {START_G} c \over {{a}} {END_G}}}",
+                rate_func=ease_out_sine, transition_duration=.5, delay=.5
+            ),
+            DerivationStep( # Remove cancelling terms
+                r"\bigl(x +", rf"{START_G} b \over 2a {END_G}", r"\bigr)^2",
+                START_G, "=", END_G,
+                r"\bigl(", rf"{{{START_G} b \over 2a {END_G}}}", r"\bigr)^2",
+                rf"{{- {START_G} c \over {{a}} {END_G}}}",
+                delay=.5
+            ),
+            DerivationStep( # (b / 2a)² ⟶ b² / 4a²
+                r"{\bigl(}x +", rf"{START_G} b \over 2a {END_G}", r"{\bigr)}^2",
+                START_G, "=", END_G,
+                rf"{{{START_G} b^2 \over 4a^2 {END_G}}}",
+                rf"{{- {START_G} c \over {{a}} {END_G}}}"
+            ),
+            DerivationStep( # Combine the two fractions in right hand
+                r"{\bigl(}x +", rf"{START_G} b \over 2a {END_G}", r"{\bigr)}^2",
+                START_G, "=", END_G,
+                r"\frac{b^2 - 4ac}{4a^2}"
+            ),
+            DerivationStep( # Take square out of left hand
+                "x", "+", START_G, "b" r"\over", "2a", END_G,
+                START_G, "=", END_G,
+                r"\pm \sqrt \frac{b^2 - 4ac}{4a^2}",
+                transform_type=FadeTransform
+            ),
+            DerivationStep( # Simplify square root from right hand
+                "x", "+", START_G, "b" r"\over", "2a", END_G,
+                START_G, "=", END_G,
+                r"\pm", START_G, r"\sqrt{b^2 - 4ac}", r"\over 2a", END_G
+            ),
+            DerivationStep( # ± to right hand numerator
+                "x", "+", START_G, "b" r"\over", "2a", END_G,
+                START_G, "=", END_G,
+                START_G, r"\pm", r"\sqrt{b^2 - 4ac}", r"\over 2a", END_G
+            ),
+            DerivationStep( # Subtract b / 2a from both hands
+                "x", "+", START_G, "b" r"\over", "2a", END_G,
+                "{-}", START_G, "{b}" r"\over", "{2a}", END_G,
+                START_G, "=", END_G,
+                START_G, r"\pm", r"\sqrt{b^2 - 4ac}", r"\over 2a", END_G,
+                "-", START_G, "b" r"\over", "2a", END_G,
+            ),
+            DerivationStep( # Color cancelling terms in red
+                "x", "+", START_G, "b" r"\over", "2a", END_G,
+                "{-}", START_G, "{b}" r"\over", "{2a}", END_G,
+                START_G, "=", END_G,
+                START_G, r"\pm", r"\sqrt{b^2 - 4ac}", r"\over 2a", END_G,
+                "-", START_G, "b" r"\over", "2a", END_G,
+                on_build=lambda tex: tex[1:12].set_color(RED_C),
+                rate_func=ease_out_sine, transition_duration=.5, delay=.5
+            ),
+            DerivationStep( # Remove cancelling terms
+                "x", START_G, "=", END_G,
+                START_G, r"\pm", r"\sqrt{b^2 - 4ac}", r"\over 2a", END_G,
+                "-", START_G, "b" r"\over", "2a", END_G,
+                delay=.5
+            ),
+            DerivationStep( # Join remaining fractions in right hand
+                "x", START_G, "=", END_G,
+                START_G, r"\pm", r"\sqrt{b^2 - 4ac}", "-", "b", r"\over", "2a", END_G
+            ),
+            DerivationStep( # Reorder right hand numerator terms
+                "x", START_G, "=", END_G,
+                START_G, "-", "b", r"\pm", r"\sqrt{b^2 - 4ac}", r"\over", "2a", END_G
+            )
+        ])
+
+        self.wait(1)
+
+        # --- Show off result
+
+        self.play(Create(
+            SurroundingRectangle(equation, color=YELLOW_E, buff=.25),
+            rate_func=ease_in_out_cubic
+        ))
 
         self.wait(1.5)
