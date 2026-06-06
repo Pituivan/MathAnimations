@@ -4,9 +4,11 @@ on:
   push:
     paths:
       - 'animations/**/*.py'
+      - 'utils/**/*.py'
   pull_request:
     paths:
       - 'animations/**/*.py'
+      - 'utils/**/*.py'
 
 jobs:
   validate-scenes:
@@ -39,19 +41,36 @@ jobs:
 
           pip install -e .
 
+      - name: Check for changes in utils
+        id: utils-changes
+        uses: tj-actions/changed-files@v45
+        with:
+          files: |
+            utils/**/*.py
+
       - name: Get changed animations files
-        id: changes
+        id: animations-changes
+        if: steps.utils-changes.outputs.any_changed == 'false'
         uses: tj-actions/changed-files@v45
         with:
           files: |
             animations/**/*.py
 
-      - name: Validate modified scenes
+      - name: Validate modified animations
+        if: steps.utils-changes.outputs.any_changed == 'false'
         run: |
-          for file in ${{ steps.changes.outputs.added_files }} \
-                      ${{ steps.changes.outputs.modified_files }} \
-                      ${{ steps.changes.outputs.renamed_files }}
+          for file in ${{ steps.animations-changes.outputs.added_files }} \
+                      ${{ steps.animations-changes.outputs.modified_files }} \
+                      ${{ steps.animations-changes.outputs.renamed_files }}
           do
+            scene=$(basename "$file" .py)
+            manim "$file" "$scene" --dry_run
+          done
+
+      - name: Validate all animations
+        if: steps.utils-changes.outputs.any_changed == 'true'
+        run: |
+          for file in animations/**/*.py; do
             scene=$(basename "$file" .py)
             manim "$file" "$scene" --dry_run
           done
