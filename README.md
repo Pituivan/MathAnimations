@@ -23,8 +23,8 @@ and a video of your animation will be rendered and opened. If something breaks, 
 - `--fps <number>`: Sets render frames per second. Default is 60.
 - `--background_color <value>`: Sets the camera's background color, which may be expressed as a Manim keyword or a hexadecimal value (preceded by a `#`).
 
-Once push your changes, a check will be run on your last commit, which will test if your animation can be rendered without problems.
-If you modified `utils/`, all animations will be re-validated, so you'll know if you colaterally broke a previously working animation.
+Once you push your changes, a check will be run on your last commit, which will test if your animation can be rendered without problems.
+If you modified `utils/`, all animations will be re-validated, so you'll know if you inadvertently broke a previously working animation.
 
 ## Contributing
 
